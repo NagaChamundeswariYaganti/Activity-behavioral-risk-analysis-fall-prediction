@@ -34,8 +34,6 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import joblib
 
 
-# Activity label mapping
-# The UCI HAR Dataset uses numeric labels 1-6 for different activities
 ACTIVITY_LABELS = {
     1: 'Walking',
     2: 'Walking Upstairs',
@@ -63,11 +61,8 @@ def load_data():
     print("Loading processed data from CSV files...")
     
     try:
-        # Load training data
         X_train = pd.read_csv(os.path.join('data', 'X_train.csv'))
         y_train = pd.read_csv(os.path.join('data', 'y_train.csv')).values.ravel()
-        
-        # Load test data
         X_test = pd.read_csv(os.path.join('data', 'X_test.csv'))
         y_test = pd.read_csv(os.path.join('data', 'y_test.csv')).values.ravel()
         
@@ -76,8 +71,8 @@ def load_data():
         
         return X_train, y_train, X_test, y_test
         
-    except FileNotFoundError as e:
-        print(f"Error: Processed data files not found!")
+    except FileNotFoundError:
+        print("Error: Processed data files not found!")
         print("Please run 'python src/feature_extraction.py' first to extract features.")
         raise
 
@@ -85,9 +80,6 @@ def load_data():
 def train_model(X_train, y_train):
     """
     Train a Random Forest classifier on the training data.
-    
-    Random Forest is an ensemble method that combines multiple decision trees
-    to make predictions. It's robust and works well for activity recognition.
     
     Args:
         X_train (pandas.DataFrame): Training features
@@ -97,34 +89,19 @@ def train_model(X_train, y_train):
         RandomForestClassifier: Trained model
     """
     print("\nTraining Random Forest Classifier...")
-    print("  - Number of trees: 100")
-    print("  - Random state: 42 (for reproducibility)")
-    
-    # Create and train the model
-    # n_estimators: Number of trees in the forest
-    # random_state: Seed for random number generator (ensures reproducible results)
     model = RandomForestClassifier(
         n_estimators=100,
         random_state=42,
-        n_jobs=-1  # Use all available CPU cores
+        n_jobs=-1
     )
-    
-    # Train the model
     model.fit(X_train, y_train)
-    
     print("Model training complete!")
-    
     return model
 
 
 def evaluate_model(model, X_test, y_test):
     """
     Evaluate the trained model on test data.
-    
-    This function calculates:
-    - Overall accuracy
-    - Per-class precision, recall, and F1-score
-    - Confusion matrix
     
     Args:
         model: Trained classifier
@@ -136,29 +113,18 @@ def evaluate_model(model, X_test, y_test):
     """
     print("\nEvaluating model on test data...")
     
-    # Make predictions
     y_pred = model.predict(X_test)
-    
-    # Calculate overall accuracy
     accuracy = accuracy_score(y_test, y_pred)
     print(f"\nOverall Accuracy: {accuracy:.4f} ({accuracy*100:.2f}%)")
     
-    # Get unique labels present in test set
     unique_labels = sorted(list(set(y_test)))
     activity_names = [ACTIVITY_LABELS[label] for label in unique_labels]
     
-    # Print detailed classification report
     print("\n" + "="*60)
-    print("Detailed Classification Report:")
+    print("Classification Report:")
     print("="*60)
-    print(classification_report(
-        y_test, 
-        y_pred, 
-        target_names=activity_names,
-        digits=4
-    ))
+    print(classification_report(y_test, y_pred, target_names=activity_names, digits=4))
     
-    # Print confusion matrix
     print("\n" + "="*60)
     print("Confusion Matrix:")
     print("="*60)
@@ -170,48 +136,23 @@ def evaluate_model(model, X_test, y_test):
 
 
 def save_model(model, filepath='data/activity_model.pkl'):
-    """
-    Save the trained model to a file.
-    
-    Args:
-        model: Trained classifier to save
-        filepath (str): Path where to save the model
-    """
+    """Save the trained model to a file."""
     print(f"\nSaving model to {filepath}...")
     joblib.dump(model, filepath)
     print("Model saved successfully!")
 
 
 def main():
-    """
-    Main function to train and evaluate the activity recognition model.
-    
-    This function:
-    1. Loads the processed feature data
-    2. Trains a Random Forest classifier
-    3. Evaluates the model on test data
-    4. Saves the trained model
-    """
+    """Train and evaluate the activity recognition model."""
     try:
-        # Step 1: Load data
         X_train, y_train, X_test, y_test = load_data()
-        
-        # Step 2: Train model
         model = train_model(X_train, y_train)
-        
-        # Step 3: Evaluate model
         evaluate_model(model, X_test, y_test)
-        
-        # Step 4: Save model
         save_model(model)
         
         print("\n" + "="*60)
         print("Training pipeline complete!")
         print("="*60)
-        print("\nNext steps:")
-        print("  - Use the saved model for predictions")
-        print("  - Try different models or hyperparameters to improve accuracy")
-        print("  - Add more features for better performance")
         
     except FileNotFoundError:
         print("\nPlease run feature extraction first:")
