@@ -1,0 +1,57 @@
+# Raw dataset files (large and usage restrictions apply)
+data/raw/
+*.csv
+*.xlsx
+*.xls
+*.zip
+*.tar.gz
+*.rar
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Model files (if saved)
+models/
+*.pkl
+*.h5
+*.joblib
+
+# Logs
+*.log
+logs/
+
+# Output files
+outputs/
+results/
+*.png
+*.pdf
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
